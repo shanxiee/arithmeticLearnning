@@ -2,7 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+public enum orderType
+{
+    per,
+    mid,
+    last
+}
 public class leecodeBstTree : MonoBehaviour
 {
     // Start is called before the first frame update
@@ -17,7 +22,9 @@ public class leecodeBstTree : MonoBehaviour
         bstTree.put(44, "这是44");
         bstTree.put(8, "这是8,又变成了88");
         //Debug.Log(bstTree.get(8));
-        bstTree.PreOrderRecur();
+        //bstTree.PreOrderRecur(orderType.per);
+        bstTree.PreOrderRecur(orderType.mid);
+        //bstTree.PreOrderRecur(orderType.last);
     }
 
     #region 面试题 04.02. 最小高度树
@@ -66,19 +73,98 @@ public class leecodeBstTree : MonoBehaviour
                 this.N = N;
             }
         }
+        #region 树的遍历
 
-        public void PreOrderRecur()
+
+        public void PreOrderRecur(orderType orderType)
         {
-            PreOrderRecur(root);
+            if(orderType == orderType.per)
+            {
+                PreOrderRecur(root);
+                PreOrderStack(root);
+            }
+            else if(orderType == orderType.mid)
+            {
+                MidOrderRecur(root);
+                MidOrderStack(root);
+            }
+            else if(orderType == orderType.last)
+            {
+                LastOrderRecur(root);
+                LastOrderStack(root);
+            }
+ 
         }
         private void PreOrderRecur(Node x)
         {
-          
             if (x == null) return;
             Debug.Log("前序遍历 " + x.val); ;
             PreOrderRecur(x.left);
             PreOrderRecur(x.right);
         }
+        private void MidOrderRecur(Node x)
+        {
+            if (x == null) return;
+            MidOrderRecur(x.left);
+            Debug.Log("中序遍历 " + x.val);
+            MidOrderRecur(x.right);
+        }
+        private void LastOrderRecur(Node x)
+        {
+            if (x == null) return;
+            LastOrderRecur(x.left);
+            LastOrderRecur(x.right);
+            Debug.Log("后序遍历 " + x.val);
+        }
+        
+        private void PreOrderStack(Node x)
+        {
+            Stack<Node> nodeStack = new Stack<Node>();
+            nodeStack.Push(x);
+
+            while (nodeStack.Count != 0)
+            {
+                Node curNode = nodeStack.Pop();
+                Debug.Log("Stack 前序遍历 "+ curNode.val);
+                if (curNode.right!=null)
+                {
+                    nodeStack.Push(curNode.right);
+                }
+                if (curNode.left != null)
+                {
+                    nodeStack.Push(curNode.left);
+                }
+            }
+        }
+        //树的非递归方式中序遍历
+        //1.空节点  树通过判断当前节点的子节点是否是空节点，来对stack进行pop操作
+        //2.cur当前节点 当前节点会根据stack的pop操作进行更新，（由于前面会递归，一直会把当前节点更
+        //  新为没有左节点的子节点，此子节点没有左节点(离开while循环)，则会进行pop操作，然后把节点更新为右节点） 此时有2种情况，如果右节点为空则继续pop，更新cur节点（为上一层节点），
+        // 否则cur会变成右节点，然后继续执行左节点更新递归
+        private void MidOrderStack(Node x)
+        {
+            Stack<Node> nodeStack = new Stack<Node>();
+            Node cur = x;
+            while (nodeStack.Count != 0||cur !=null)
+            {
+                while (cur != null)
+                {
+                    nodeStack.Push(cur);
+                    cur = cur.left;
+                }
+
+                Node node = nodeStack.Pop();
+                Debug.Log("Stack 中序遍历 " + node.val);
+                cur = node.right;
+            }  
+        }
+        private void LastOrderStack(Node x)
+        {
+
+        }
+
+
+        #endregion
 
         public int Size()
         {
@@ -97,7 +183,7 @@ public class leecodeBstTree : MonoBehaviour
         }
         private Value get(Node root,Key key)
         {
-            if (root == null) return default;
+            if (root == null) return default(Value);
 
             int cmp = root.key.CompareTo(key);
             if (cmp > 0)
