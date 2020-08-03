@@ -23,8 +23,11 @@ public class leecodeBstTree : MonoBehaviour
         bstTree.put(8, "这是8,又变成了88");
         //Debug.Log(bstTree.get(8));
         //bstTree.PreOrderRecur(orderType.per);
-        bstTree.PreOrderRecur(orderType.mid);
+
+        bstTree.PreOrderRecur(orderType.last);
+
         //bstTree.PreOrderRecur(orderType.last);
+
     }
 
     #region 面试题 04.02. 最小高度树
@@ -91,7 +94,8 @@ public class leecodeBstTree : MonoBehaviour
             else if(orderType == orderType.last)
             {
                 LastOrderRecur(root);
-                LastOrderStack(root);
+                LastOrderStack_1(root);
+                LastOrderStack_2(root);
             }
  
         }
@@ -158,9 +162,64 @@ public class leecodeBstTree : MonoBehaviour
                 cur = node.right;
             }  
         }
-        private void LastOrderStack(Node x)
-        {
 
+        private void LastOrderStack_1(Node x)
+        {
+            if (x == null) return;
+
+            Stack<Node> nodeStack1 = new Stack<Node>();
+            Stack<Node> nodeStack2 = new Stack<Node>();
+
+            Node cur = x;
+            nodeStack1.Push(x);
+            while (nodeStack1.Count != 0)
+            {
+                cur = nodeStack1.Pop();
+                if  (cur.left != null)
+                {
+                    nodeStack1.Push(cur.left);
+                }
+                if (cur.right != null)
+                {
+                    nodeStack1.Push(cur.right);
+                }
+                nodeStack2.Push(cur);
+            }
+
+            while (nodeStack2.Count != 0)
+            {
+                Node node = nodeStack2.Pop();
+                Debug.Log("树的后序遍历 Stack版本1 ==>" + node.val);
+            }
+
+        }
+        //1.h 的作用是 阻止C一直向下寻找递归，C判断H不相等之后则会一直走到最后一个循环，然后不断向上pop遍历
+        //2.Peek 和 Push ,相当于插入后不断拿最新的那个.left一直向下递归
+        private void LastOrderStack_2(Node x)
+        {
+            if (x == null) return;
+            Stack<Node> nodeStack = new Stack<Node>();
+            nodeStack.Push(x);
+            Node c = x;
+            Node h = null;
+
+            while (nodeStack.Count != 0)
+            {
+                c = nodeStack.Peek();
+                if (c.left != null && h != c.left && h != c.right)
+                {
+                    nodeStack.Push(c.left);
+                }
+                else if(c.right !=null && h != c.right){
+                    nodeStack.Push(c.right);
+                }
+                else
+                {
+                    Node node = nodeStack.Pop();
+                    Debug.Log("树的后序遍历 Stack版本2 ==>" + node.val);
+                    h = c;
+                }
+            }
         }
 
 
