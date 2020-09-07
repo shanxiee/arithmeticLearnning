@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 public enum orderType
 {
@@ -35,6 +36,14 @@ public class leecodeBstTree : MonoBehaviour
      * 就是中序遍历，树中序遍历是升序的，所以可以从中间开始构建一个
      * 最矮的树
      */
+
+    public class TreeNode
+    {
+        public int val;
+        public TreeNode left;
+        public TreeNode right;
+        public TreeNode(int x) { val = x; }
+    }
     public TreeNode SortedArrayToBST(int[] nums)
     {
         if (nums.Length == 0) return null;
@@ -50,13 +59,131 @@ public class leecodeBstTree : MonoBehaviour
         node.right = put(mid + 1, lo, nums);
         return node;
     }
-    public class TreeNode
-    {
-        public int val;
-        public TreeNode left;
-        public TreeNode right;
-        public TreeNode(int x) { val = x; }
+    #endregion
+    #region 108. 将有序数组转换为二叉搜索树
+    /**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     public int val;
+ *     public TreeNode left;
+ *     public TreeNode right;
+ *     public TreeNode(int x) { val = x; }
+ * }
+ */
+    public TreeNode SortedArrayToBST2(int[] nums)
+    {   
+        return sortHelp(nums,0,nums.Length);
     }
+    public TreeNode sortHelp(int[] nums,int lo,int hi)
+    {
+        if (lo > hi)
+        {
+            return null;
+        }
+        int mid = lo + (hi - lo) / 2;
+        int nodeVal = nums[mid];
+        TreeNode node = new TreeNode(nodeVal);
+        node.left = sortHelp(nums, lo, mid-1);
+        node.right = sortHelp(nums, mid + 1, hi);
+        return node;
+    }
+    #endregion
+
+    #region 102. 二叉树的层序遍历
+    public IList<IList<int>> LevelOrder(TreeNode root)
+    {
+        var queueList = new Queue<TreeNode>();
+        var levelOrder = new List<IList<int>>();
+
+        if (root == null)
+        {
+            return levelOrder;
+        }
+
+
+        queueList.Enqueue(root);
+        while (queueList.Count > 0)
+        {
+            int curLsitLen = queueList.Count;
+            var tempList = new List<int>();
+            for(int i = 0; i < curLsitLen; i++)
+            {
+                var outNode = queueList.Dequeue();
+                tempList.Add(outNode.val);
+                if (outNode.left!=null) 
+                    queueList.Enqueue(outNode.left);
+                if(outNode.right!=null)
+                    queueList.Enqueue(outNode.right);
+
+            }
+            levelOrder.Add(tempList);
+        }
+        return levelOrder;
+    }
+
+    #endregion
+    #region 105. 从前序与中序遍历序列构造二叉树
+    //Hashtable indexMap;
+    //public TreeNode buildTree(int[] preorder,int []inorder)
+    //{
+    //    int n = preorder.Length;
+    //    indexMap = new Hashtable();
+    //    for(int i = 0; i < n; i++)
+    //    {
+    //        indexMap.Add(inorder[i],i);
+    //    }
+    //    return myBuildTree(preorder, inorder, 0, n - 1, 0, n - 1);
+    //}
+
+    //private TreeNode myBuildTree(int[] preorder, int[] inorder, int preorder_left, int preorder_right, int inorder_left, int inorder_right)
+    //{
+    //    if (preorder_left > preorder_right)
+    //        return null;
+    //    int preorder_root = preorder_left;
+    //    int inorder_root = (int)indexMap[preorder[preorder_root]];
+    //    TreeNode root = new TreeNode(preorder[preorder_root]);
+
+    //    int size_left_subtree = inorder_root - inorder_left;
+
+    //    root.left = myBuildTree(preorder, inorder, preorder_left + 1, preorder_left + size_left_subtree, inorder_left, inorder_root - 1);
+    //    root.right = myBuildTree(preorder, inorder, preorder_left + size_left_subtree + 1, preorder_right, inorder_root + 1, inorder_right);
+    //    return root;
+    //}
+
+    #endregion
+    #region 270. 最接近的二叉搜索树值
+    public int ClosestValue(TreeNode root, double target)
+    {
+
+        double pred = double.MinValue;
+        Stack<TreeNode> nodeStack = new Stack<TreeNode>();
+        TreeNode cur = root;
+        while (nodeStack.Count != 0 || cur != null)
+        {
+            while (cur != null)
+            {
+                nodeStack.Push(cur);
+                cur = cur.left;
+            }
+
+            TreeNode node = nodeStack.Pop();
+
+            if (target >= pred && target < node.val)
+            {
+
+                return Math.Abs(pred - target) < Math.Abs(node.val - target) ? (int)pred : node.val;
+
+            }
+
+            pred = node.val;
+            cur = node.right;
+        }
+        return (int)pred;
+    }
+    #endregion
+    #region 236. 二叉树的最近公共祖先
+
+
     #endregion
     #region BST Tree
     public class BST<Key,Value> where Key : IComparable
